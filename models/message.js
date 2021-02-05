@@ -12,27 +12,32 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(group_message, { foreignKey: "id" });
     }
   }
-  message.init({
-    title: {
-      allowNull: true,
-      type: DataTypes.STRING,
-    },
-    text: {
-      allowNull: true,
-      type: DataTypes.STRING,
-      validate: {
-        max: {
-          args: 500,
-          msg: "Too long message",
+  message.init(
+    {
+      title: {
+        allowNull: true,
+        type: DataTypes.STRING,
+      },
+      text: {
+        allowNull: true,
+        type: DataTypes.STRING,
+        validate: {
+          max: {
+            args: 500,
+            msg: "Too long message",
+          },
         },
       },
+      user_id: {
+        allowNull: true,
+        type: DataTypes.INTEGER,
+      },
     },
-    user_id: {
-      allowNull: true,
-      type: DataTypes.INTEGER,
-    },
-    sequelize,
-    modelName: "message",
-  });
+    {
+      sequelize,
+      tableName: "messages",
+      modelName: "message",
+    }
+  );
   return message;
 };
