@@ -1,17 +1,17 @@
-'use strict';
+"use strict";
 module.exports = {
   up: async (queryInterface, DataTypes) => {
-    await queryInterface.createTable('users', {
+    await queryInterface.createTable("users", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
       },
       login: {
         type: DataTypes.STRING,
         allowNull: true,
-        unique:true
+        unique: true,
       },
       nickname: {
         type: DataTypes.STRING,
@@ -19,31 +19,31 @@ module.exports = {
       },
       password: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
       },
       email: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
       },
       is_Admin: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
       },
       is_Blocked: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: DataTypes.DATE
-      }
+        type: DataTypes.DATE,
+      },
     });
   },
   down: async (queryInterface, DataTypes) => {
-    await queryInterface.dropTable('users');
-  }
+    await queryInterface.dropTable("users");
+  },
 };
