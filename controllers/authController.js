@@ -1,33 +1,30 @@
 require("dotenv").config({ path: "../.env" });
 const db = require("../models");
 const bcrypt = require("bcrypt");
-const saltRounds = +process.env.SALT_ROUNDS;
-const jwt = require("jsonwebtoken");
-const { secret } = require("../config/config");
+const reg = /^[a-zA-Z0-9]+$/;
+const authServiceLayer = require("../service/authServiceLayer");
 
-const generateAccessToken = (id, is_admin) => {
-  const payload = {
-    id,
-    is_admin,
-  };
-  return jwt.sign(payload, secret, { expiresIn: "24h" });
-};
+// const generateAccessToken = (id, isAdmin) => {
+//   const payload = {
+//     id,
+//     isAdmin,
+//   };
+//   return jwt.sign(payload, secret, { expiresIn: "24h" });
+// };
 
 class AuthController {
   async auth(req, res) {
     const { login, password, email } = req.body;
-
+    if (!reg.test(password)) {
+      return res
+        .status(400)
+        .json({ message: `Пароль имеет не поддерживаемые символы` });
+    }
     try {
-      let user = await db.user.findOne({ where: { login } });
+      let user = await authServiceLayer.find(login);
 
       if (!user) {
-        const hash = bcrypt.hashSync(password, saltRounds);
-        const newUser = await db.user.create({
-          login,
-          password: hash,
-          email,
-        });
-        user = newUser;
+        user = await authServiceLayer.create(login, password, email);
       }
 
       const validPassword = bcrypt.compareSync(password, user.password);
@@ -36,7 +33,10 @@ class AuthController {
         return res.status(403).json({ message: `Введен неверный пароль` });
       }
 
-      const token = generateAccessToken(user.id, user.is_admin);
+      const token = authServiceLayer.generateAccessToken(
+        user.id,
+        user.is_admin
+      );
 
       res.json({ token });
     } catch (e) {
