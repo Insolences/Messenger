@@ -25,19 +25,19 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      is_Admin: {
+      is_admin: {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      is_Blocked: {
+      is_blocked: {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: DataTypes.DATE,
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: DataTypes.DATE,
       },

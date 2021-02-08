@@ -39,9 +39,6 @@ module.exports = (sequelize, DataTypes) => {
       password: {
         type: DataTypes.STRING,
         allowNull: true,
-        validate: {
-          is: /^[a-zA-Z0-9]+$/,
-        },
       },
       email: {
         type: DataTypes.STRING,
@@ -50,12 +47,12 @@ module.exports = (sequelize, DataTypes) => {
           isEmail: true,
         },
       },
-      is_Admin: {
+      is_admin: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
         defaultValue: 0,
       },
-      is_Blocked: {
+      is_blocked: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
         defaultValue: 0,
