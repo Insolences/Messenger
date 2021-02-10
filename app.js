@@ -13,8 +13,23 @@ app.use(cors());
 
 app.use(`/${process.env.SR_URL}`, authRouter);
 
-app.listen(PORT, async () => {
+const server = app.listen(PORT, async () => {
   console.log(`Server up on http://${HOST}:${PORT}`);
   await db.sequelize.authenticate();
   console.log("Database Connected");
+});
+
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
+
+io.on("connection", (socket) => {
+  socket.emit("getChats", [
+    { name: "test ok" },
+    { name: "next1", img: "https://strana.ua/img/article/2625/70_main.jpeg" },
+  ]);
 });

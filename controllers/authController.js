@@ -4,13 +4,6 @@ const bcrypt = require("bcrypt");
 const reg = /^[a-zA-Z0-9]+$/;
 const authServiceLayer = require("../service/authServiceLayer");
 
-// const generateAccessToken = (id, isAdmin) => {
-//   const payload = {
-//     id,
-//     isAdmin,
-//   };
-//   return jwt.sign(payload, secret, { expiresIn: "24h" });
-// };
 
 class AuthController {
   async auth(req, res) {
