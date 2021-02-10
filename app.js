@@ -6,6 +6,7 @@ const cors = require("cors");
 const HOST = process.env.DB_HOST;
 const PORT = process.env.PORT;
 const authRouter = require("./routes/authRouter");
+const {socketServer} = require("./webSocket/index")
 
 app.use(express.urlencoded());
 app.use(express.json());
@@ -19,17 +20,4 @@ const server = app.listen(PORT, async () => {
   console.log("Database Connected");
 });
 
-const io = require("socket.io")(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
-
-io.on("connection", (socket) => {
-  socket.emit("getChats", [
-    { name: "test ok" },
-    { name: "next1", img: "https://strana.ua/img/article/2625/70_main.jpeg" },
-  ]);
-});
+socketServer(server) // Подключение websocket
