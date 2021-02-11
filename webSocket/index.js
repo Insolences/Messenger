@@ -13,6 +13,7 @@ const socketServer = (server) => {
   });
 
   io.on("connection", (socket) => {
+    const messages = [];
     const chats = [
       { name: "test ok" },
       { name: "next1", img: "https://strana.ua/img/article/2625/70_main.jpeg" },
@@ -28,12 +29,16 @@ const socketServer = (server) => {
 
     socket.emit("getChats", chats);
 
-    socket.on("newMsg", newMsgController);
-
-    console.log(
-      "sockets----------------------------------",
-      socket.handshake.query
-    );
+    socket.on("newMsgClient", (data) => {
+      wsService.createNewMsg({
+        title: "user1",
+        senderId: 1,
+        resiverId: 2,
+        text: data.msg,
+      });
+      console.log("new msg: ", data);
+      socket.emit("sendMsg", messages);
+    });
   });
 };
 
