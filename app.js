@@ -6,7 +6,7 @@ const cors = require("cors");
 const HOST = process.env.DB_HOST;
 const PORT = process.env.PORT;
 const authRouter = require("./routes/authRouter");
-const {socketServer} = require("./webSocket/index")
+const { socketServer } = require("./webSocket/index");
 
 app.use(express.urlencoded());
 app.use(express.json());
@@ -20,4 +20,4 @@ const server = app.listen(PORT, async () => {
   console.log("Database Connected");
 });
 
-socketServer(server) // Подключение websocket
+socketServer(server); // Подключение websocket

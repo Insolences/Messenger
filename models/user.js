@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
             args: 3,
             msg: "Login must be more then 3",
           },
-          is: /^[a-zA-Z0-9]+$/,
+          // is: /^[a-zA-Z0-9]+$/,
         },
       },
       nickname: {
