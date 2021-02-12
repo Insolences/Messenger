@@ -40,6 +40,8 @@ const socketServer = (server) => {
       socket.emit("sendMsg", messages);
     });
   });
+
+  io.on("disconnect", (socket) => {});
 };
 
 module.exports.socketServer = socketServer;
