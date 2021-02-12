@@ -7,30 +7,20 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ group_message }) {
+    static associate(models) {
       // define association here
-      this.belongsTo(group_message, { foreignKey: "id" });
     }
   }
   message.init(
     {
-      title: {
-        allowNull: true,
-        type: DataTypes.STRING,
+      chat_id: {
+        type: DataTypes.INTEGER,
+      },
+      sender_id: {
+        type: DataTypes.INTEGER,
       },
       text: {
-        allowNull: true,
-        type: DataTypes.STRING,
-        validate: {
-          max: {
-            args: 500,
-            msg: "Too long message",
-          },
-        },
-      },
-      user_id: {
-        allowNull: true,
-        type: DataTypes.INTEGER,
+        type: DataTypes.TEXT,
       },
     },
     {

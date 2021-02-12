@@ -7,19 +7,15 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ user_group }) {
+    static associate(models) {
       // define association here
-      this.hasMany(user_group, { foreignKey: "id" });
-    }
-    toJSON() {
-      return { ...this.get(), password: undefined };
     }
   }
   user.init(
     {
       login: {
-        type: DataTypes.STRING,
         allowNull: false,
+        type: DataTypes.STRING,
         unique: true,
         validate: {
           notEmpty: { msg: "Login must be not empty" },
@@ -28,33 +24,32 @@ module.exports = (sequelize, DataTypes) => {
             args: 3,
             msg: "Login must be more then 3",
           },
-          // is: /^[a-zA-Z0-9]+$/,
         },
       },
+
       nickname: {
         type: DataTypes.STRING,
-        allowNull: true,
         defaultValue: "nickname",
       },
       password: {
         type: DataTypes.STRING,
-        allowNull: true,
       },
       email: {
         type: DataTypes.STRING,
-        allowNull: true,
         validate: {
           isEmail: true,
         },
       },
       is_admin: {
         type: DataTypes.BOOLEAN,
-        allowNull: true,
         defaultValue: 0,
       },
       is_blocked: {
         type: DataTypes.BOOLEAN,
-        allowNull: true,
+        defaultValue: 0,
+      },
+      read_only: {
+        type: DataTypes.BOOLEAN,
         defaultValue: 0,
       },
     },
@@ -64,6 +59,5 @@ module.exports = (sequelize, DataTypes) => {
       modelName: "user",
     }
   );
-
   return user;
 };

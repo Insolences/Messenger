@@ -1,5 +1,7 @@
 const db = require("../models");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { secret } = require("../config/config");
 const reg = /^[a-zA-Z0-9]+$/;
 const authServiceLayer = require("../service/authServiceLayer");
 
@@ -37,18 +39,19 @@ class AuthController {
     }
   }
   async verify(req, res) {
-    const { token } = req.headers;
+    const { token } = req.body;
     try {
       const { id } = jwt.verify(token, secret);
       res.status(200).json({ id });
     } catch (e) {
-      return res.status(401).json({
+      res.status(401).json({
         message: "Пользователь не авторизован или закончилось действия токена",
       });
     }
   }
   async access(req, res) {
     const { token } = req.headers;
+
     try {
       const { isAdmin } = jwt.verify(token, secret);
       if (!isAdmin) {

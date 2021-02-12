@@ -13,16 +13,13 @@ module.exports = (sequelize, DataTypes) => {
   }
   chat.init(
     {
-      user1: {
-        allowNull: true,
-        type: DataTypes.INTEGER,
+      title: {
+        type: DataTypes.STRING,
       },
-      user2: {
-        allowNull: true,
-        type: DataTypes.INTEGER,
+      type: {
+        type: DataTypes.ENUM("private", "public"),
       },
-      msg_id: {
-        allowNull: true,
+      owner_id: {
         type: DataTypes.INTEGER,
       },
     },
