@@ -8,6 +8,9 @@ const authServiceLayer = require("../service/authServiceLayer");
 class AuthController {
   async auth(req, res) {
     const { login, password, email, social } = req.body;
+    if (!login || !password) {
+      return res.status(400).json({ message: `Не ввели данные` });
+    }
     if (!reg.test(password)) {
       return res
         .status(400)
@@ -33,13 +36,14 @@ class AuthController {
         user.is_admin
       );
 
-      res.json({ token });
+      return res.json({ token });
     } catch (e) {
       console.log(e);
     }
   }
   async verify(req, res) {
-    const { token } = req.body;
+    const { token } = req.headers;
+
     try {
       const { id } = jwt.verify(token, secret);
       res.status(200).json({ id });
