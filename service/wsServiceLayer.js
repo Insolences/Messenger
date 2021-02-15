@@ -1,38 +1,33 @@
+require("dotenv").config({ path: "../.env" });
 const db = require("../models");
+const bcrypt = require("bcrypt");
+const saltRounds = +process.env.SALT_ROUNDS;
+const jwt = require("jsonwebtoken");
+const { secret } = require("../config/config");
 
-const getAllChats = (id) => {
-  const chats = db.chat.findAll({
-    where: {
-      id: id,
-    },
-  });
-
-  return chats;
+exports.findUser = (id) => {
+  return db.user.findOne({ where: { id } });
 };
-
-const getAllMsg = (userId, companionId) => {};
-
-const createNewMsg = async ({ senderId, resiverId, text, title }) => {
-  const msg = await db.message.create({
-    title,
-    text,
-    user_id: senderId,
-  });
-
-  db.chat.create({
-    user1: senderId,
-    user2: resiverId,
-    msg_id: msg.id,
-  });
-
-  db.user_group.create({
-		user_id: senderId,
-		group_id: resiverId
-	});
-  db.user_group.create({
-		user_id: resiverId,
-		group_id: senderId
-	});
+exports.findChats = (id) => {
+  return db.sequelize.query(
+    `SELECT uc1.chat_id, users.nickname, chats.type, chats.title  FROM user_chats as uc1
+JOIN chats ON chats.id = uc1.chat_id
+LEFT OUTER JOIN user_chats as uc2 ON uc2.chat_id = uc1.chat_id AND uc2.user_id != ${id} AND chats.type = 'private'
+LEFT OUTER JOIN users ON users.id = uc2.user_id
+WHERE uc1.user_id = ${id}`
+  );
 };
-
-module.exports = { getAllChats, getAllMsg, createNewMsg };
+exports.findMessages = (chat_id) => {
+  return db.message.findAll({
+    where: { chat_id },
+    include: [
+      {
+        model: db.user,
+        attributes: ["nickname"],
+      },
+    ],
+  });
+};
+exports.createMessage = (message) => {
+  return db.message.create(message);
+};

@@ -21,3 +21,13 @@ const server = app.listen(PORT, async () => {
 });
 
 socketServer(server); // Подключение websocket
+// let id = 1;
+// db.sequelize
+//   .query(
+//     `SELECT uc1.chat_id, users.nickname, chats.type, chats.title  FROM user_chats as uc1
+// JOIN chats ON chats.id = uc1.chat_id
+// LEFT OUTER JOIN user_chats as uc2 ON uc2.chat_id = uc1.chat_id AND uc2.user_id != ${id} AND chats.type = 'private'
+// LEFT OUTER JOIN users ON users.id = uc2.user_id
+// WHERE uc1.user_id = ${id}`
+//   )
+//   .then((chats) => console.log(JSON.stringify(chats)));
