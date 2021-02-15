@@ -4,8 +4,8 @@ const { secret } = require("../config/config");
 const wsService = require("../service/wsServiceLayer");
 const newMsgController = require("./websocketContollers/newMsgController");
 const message = require("../models/message");
-let senderUsers = {};
-let recieverUsers = {};
+let senderUsers = [];
+let recieverUsers = [];
 const socketServer = (server) => {
   const io = socketIo(server, {
     cors: {
@@ -14,11 +14,27 @@ const socketServer = (server) => {
       credentials: true,
     },
   });
-
-  io.on("connection", async (socket) => {
+  io.sockets.on("connection", async (socket) => {
     const token = socket.handshake.query.token;
     const { id } = jwt.verify(token, secret);
     const user = await wsService.findUser(id);
+    senderUsers.push(
+      new Object({
+        [socket.id]: {
+          id: user.id,
+          is_admin: user.is_admin,
+          read_only: user.read_only,
+          nickname: user.nickname,
+          email: user.email,
+        },
+      })
+    );
+    recieverUsers = {
+      ...recieverUsers,
+      [user.id]: [...(recieverUsers[user.id] || []), socket.id],
+    };
+    console.log(recieverUsers);
+
     const chats = await wsService.findChats(id);
     let messages = [];
 
@@ -48,7 +64,6 @@ const socketServer = (server) => {
       if (a.id < b.id) {
         return -1;
       }
-      // a должно быть равным b
       return 0;
     });
 
@@ -67,10 +82,24 @@ const socketServer = (server) => {
     });
     socket.emit("getChats", queryChats);
     socket.emit("getMessages", queryMessages);
-    socket.on("sendMessage", async (socket) => {
-      console.log(socket);
-      delete socket.nickname;
-      const msg = await wsService.createMessage(socket);
+    socket.on("sendMessage", async (message) => {
+      const newMsg = await wsService.createMessage(message);
+      const chatUsers = await wsService.chatUsers(message.chat_id);
+      const sendMsg = {
+        id: newMsg.id,
+        chat_id: newMsg.chat_id,
+        sender_id: newMsg.sender_id,
+        nickname: message.nickname,
+        text: newMsg.text,
+      };
+      for (const user of chatUsers) {
+        if (recieverUsers[`${user.user_id}`]) {
+          for (const id of recieverUsers[`${user.user_id}`]) {
+            io.to(id).emit("newMessage", sendMsg);
+          }
+        }
+      }
+      // socket.broadcast.emit("newMessage", sendMsg);
     });
   });
 
