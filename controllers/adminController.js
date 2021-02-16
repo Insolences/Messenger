@@ -3,7 +3,7 @@ const { secret } = require("../config/config");
 const adminLayer = require("../service/adminLayer");
 
 class AdminController {
-    async findUsers(req, res) {
+    async allUsers(req, res) {
 
         const { token } = req.headers;
         const { is_admin } = jwt.verify(token, secret);
@@ -47,6 +47,7 @@ class AdminController {
             }    
         }   
     }
+
     async getAllChats(req, res){
         const { token } = req.headers;
         const { is_admin } = jwt.verify(token, secret);
@@ -68,6 +69,28 @@ class AdminController {
             }   
         };   
     };
+
+    async deleteUserOfChat(req, res){
+        const { token } = req.headers;
+        const { is_admin } = jwt.verify(token, secret);
+        const { chat_id, user_id} = req.body;
+
+        if (!is_admin) {
+            return res.status(403).json({ message: "У вас нет доступа" });
+
+        }else{
+            try{
+
+                let delUserChat = await adminLayer.deleteUsersOfChats(chat_id, user_id);
+
+                return res.json(delUserChat);
+                }catch(e) {
+                console.log(e);
+            }   
+        };
+
+    }
+
 
 }
 
