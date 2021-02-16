@@ -10,14 +10,24 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
     }
+    toJSON() {
+      return {
+        ...this.get(),
+        createdAt: undefined,
+        updatedAt: undefined,
+        chat_id: undefined,
+      };
+    }
   }
   user_chat.init(
     {
       chat_id: {
         type: DataTypes.INTEGER,
+        primaryKey: true,
       },
       user_id: {
         type: DataTypes.INTEGER,
+        primaryKey: true,
       },
     },
     {
