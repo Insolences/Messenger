@@ -8,12 +8,9 @@ exports.allUsers = () => {
     return allUsers;
 };
 
-exports.updateUsers = (id, login, nickname, email, is_admin, is_blocked, read_only) => {
+exports.updateUsers = (id, is_admin, is_blocked, read_only) => {
     const updUsers = db.user.update(
-        { login: login,
-        nickname: nickname, 
-        email: email, 
-        is_admin: is_admin, 
+        { is_admin: is_admin, 
         is_blocked: is_blocked,
         read_only: read_only
         }, { where: {

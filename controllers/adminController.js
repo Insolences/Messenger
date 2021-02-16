@@ -38,8 +38,7 @@ class AdminController {
             try{
                 for(let i = 0; i<objUsers.length; i++){
                     console.log(typeof(objUsers[i].id));
-                    await adminLayer.updateUsers(objUsers[i].id, objUsers[i].login, objUsers[i].nickname, objUsers[i].email, objUsers[i].is_admin,
-                        objUsers[i].is_blocked, objUsers[i].read_only);
+                    await adminLayer.updateUsers(objUsers[i].id, objUsers[i].is_admin, objUsers[i].is_blocked, objUsers[i].read_only);
                 }
 
                 return res.status(200).json({message: "Пользователь обновлен"});

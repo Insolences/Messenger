@@ -5,7 +5,7 @@ const controller = require("../controllers/adminController");
 //localhost:5000/api/v1/
 
 router.get("/getUsers", controller.findUsers);
-router.post("/updateUser", (...args) => controller.updateUsers(...args));
+router.patch("/updateUser", (...args) => controller.updateUsers(...args));
 router.get("/getAllChats", controller.getAllChats);
 
 
