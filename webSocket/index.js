@@ -6,6 +6,7 @@ const newMsgController = require("./websocketContollers/newMsgController");
 const message = require("../models/message");
 let senderUsers = [];
 let recieverUsers = [];
+
 const socketServer = (server) => {
   const io = socketIo(server, {
     cors: {
@@ -14,8 +15,20 @@ const socketServer = (server) => {
       credentials: true,
     },
   });
+  const notificationAll = ({ usersId, event, params }) => {
+    usersId.forEach((id) => {
+      if (recieverUsers[id]) {
+        recieverUsers[id].forEach((socketId) => {
+          io.to(socketId).emit(event, params);
+        });
+      }
+    });
+  };
   io.on("connection", async (socket) => {
     const token = socket.handshake.query.token;
+    if (!token) {
+      socket.disconnect();
+    }
     const { id } = jwt.verify(token, secret);
     const user = await wsService.findUser(id);
     senderUsers.push(
@@ -35,13 +48,13 @@ const socketServer = (server) => {
     };
     const chats = await wsService.findChats(id);
 
-    let messages = [];
+    const messages = [];
 
     for (const chat of chats[0]) {
       messages.push(await wsService.findMessages(chat.chat_id));
     }
-    let baseConnect;
-    if (chats || messages) {
+
+    if (chats[0].length !== 0 || messages.length !== 0) {
       const queryChats = chats[0].map((chat) => ({
         id: chat.chat_id,
         title: chat.type === "public" ? chat.title : chat.nickname,
@@ -67,11 +80,7 @@ const socketServer = (server) => {
         }
         return 0;
       });
-      baseConnect = (onlyInfo) => {
-        if (onlyInfo) {
-          socket.emit("getChats", queryChats);
-          socket.emit("getMessages", queryMessages);
-        }
+      setTimeout(() => {
         socket.emit("getUserInfo", {
           query: {
             id: user.id,
@@ -81,19 +90,30 @@ const socketServer = (server) => {
             email: user.email,
           },
         });
-      };
-      setTimeout(() => baseConnect(false), 2000);
+        socket.emit("getChats", queryChats);
+        socket.emit("getMessages", queryMessages);
+      }, 2000);
     }
-    setTimeout(() => baseConnect(true), 2000);
-
-    // console.log("user_id: ", id);
-    // console.log("connection: ", token);
-    // console.log("socket: ", socket.id);
-    // console.log("clients: ", Object.keys(io.engine.clients));
+    setTimeout(() => {
+      socket.emit("getUserInfo", {
+        query: {
+          id: user.id,
+          is_admin: user.is_admin,
+          read_only: user.read_only,
+          nickname: user.nickname,
+          email: user.email,
+        },
+      });
+    }, 2000);
 
     socket.on("sendMessage", async (message) => {
       const newMsg = await wsService.createMessage(message);
       const chatUsers = await wsService.chatUsers(message.chat_id);
+      const usersId = chatUsers.reduce((acc, item) => {
+        acc.push(item.user_id);
+        return acc;
+      }, []);
+
       const sendMsg = {
         id: newMsg.id,
         chat_id: newMsg.chat_id,
@@ -101,17 +121,26 @@ const socketServer = (server) => {
         nickname: message.nickname,
         text: newMsg.text,
       };
-      for (const user of chatUsers) {
-        if (recieverUsers[`${user.user_id}`]) {
-          for (const id of recieverUsers[`${user.user_id}`]) {
-            io.to(id).emit("newMessage", sendMsg);
-          }
-        }
-      }
+
+      notificationAll({
+        usersId,
+        event: "newMessage",
+        params: sendMsg,
+      });
     });
+    socket.on("createChat", async ({ usersId, title, type, ownerId }) => {
+      await wsService.createChat({ users, title, type, ownerId });
+
+      notificationAll({usersId, params:{}, event: "updateChats"})
+    });
+    socket.on("getAllUsers", async () => {
+      const users = await wsService.findAllUsers()
+      socket.emit("sendAllUsers", users)
+    })
+
     socket.on("disconnect", () => {
-      console.log("disconnect", socket.id);
-      console.log(recieverUsers);
+      // console.log("disconnect", socket.id);
+      // console.log(recieverUsers);
     });
   });
 };
