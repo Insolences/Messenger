@@ -30,7 +30,6 @@ class AdminController {
         const { token } = req.headers;
         const { is_admin } = jwt.verify(token, secret);
         const objUsers = req.body;
-
         if (!is_admin) {
             return res.status(403).json({ message: "У вас нет доступа" });
         }else{

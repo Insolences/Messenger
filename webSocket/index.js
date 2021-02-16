@@ -70,7 +70,7 @@ const socketServer = (server) => {
             text: message.text,
           }))
         )
-        .flat();
+        // .flat();
       queryMessages.sort(function (a, b) {
         if (a.id > b.id) {
           return 1;
