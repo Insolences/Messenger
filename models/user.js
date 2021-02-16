@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(message, { foreignKey: "id" });
     }
     toJSON() {
-      return { ...this.get(), password: undefined };
+      return { ...this.get(), password: undefined, createdAt: undefined, updatedAt: undefined };
     }
   }
   user.init(
