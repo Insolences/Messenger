@@ -5,6 +5,15 @@ const saltRounds = +process.env.SALT_ROUNDS;
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config/config");
 
+const adapterChat = (arr = [], chatId) => {
+  return arr.reduce((acc, item) => {
+    acc.push({
+      chat_id: chatId,
+      user_id: item,
+    });
+  }, []);
+};
+
 exports.findUser = (id) => {
   return db.user.findOne({ where: { id } });
 };
@@ -33,4 +42,28 @@ exports.createMessage = (message) => {
 };
 exports.chatUsers = (chat_id) => {
   return db.user_chat.findAll({ where: { chat_id } });
+};
+exports.findAllUsers = async () => {
+  const users = await db.user.findAll();
+  return users.reduce((acc, item) => {
+    acc.push({
+      id: item.id,
+      nickname: item.nickname,
+    });
+    return acc;
+  }, []);
+};
+
+exports.createChat = async ({
+  users = [],
+  ownerId = null,
+  title = null,
+  type,
+}) => {
+  const chat = await db.chat.create({
+    type,
+    title,
+    ownerId,
+  });
+  db.user_chat.bulkCreate(adapterChat(users, chat.id));
 };
