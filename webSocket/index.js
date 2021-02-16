@@ -40,8 +40,9 @@ const socketServer = (server) => {
     for (const chat of chats[0]) {
       messages.push(await wsService.findMessages(chat.chat_id));
     }
-    let baseConnect;
-    if (chats || messages) {
+    console.log(chats);
+
+    if (chats[0].length !== 0 || messages.length !== 0) {
       const queryChats = chats[0].map((chat) => ({
         id: chat.chat_id,
         title: chat.type === "public" ? chat.title : chat.nickname,
@@ -67,11 +68,7 @@ const socketServer = (server) => {
         }
         return 0;
       });
-      baseConnect = (onlyInfo) => {
-        if (onlyInfo) {
-          socket.emit("getChats", queryChats);
-          socket.emit("getMessages", queryMessages);
-        }
+      setTimeout(() => {
         socket.emit("getUserInfo", {
           query: {
             id: user.id,
@@ -81,10 +78,22 @@ const socketServer = (server) => {
             email: user.email,
           },
         });
-      };
-      setTimeout(() => baseConnect(false), 2000);
+        socket.emit("getChats", queryChats);
+        socket.emit("getMessages", queryMessages);
+        console.log("test", queryChats, queryMessages);
+      }, 2000);
     }
-    setTimeout(() => baseConnect(true), 2000);
+    setTimeout(() => {
+      socket.emit("getUserInfo", {
+        query: {
+          id: user.id,
+          is_admin: user.is_admin,
+          read_only: user.read_only,
+          nickname: user.nickname,
+          email: user.email,
+        },
+      });
+    }, 2000);
 
     // console.log("user_id: ", id);
     // console.log("connection: ", token);
