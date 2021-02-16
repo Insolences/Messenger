@@ -91,22 +91,6 @@ const socketServer = (server) => {
     // console.log("socket: ", socket.id);
     // console.log("clients: ", Object.keys(io.engine.clients));
 
-    // const baseConnect = (onlyInfo) => {
-    //   if (onlyInfo) {
-    //     socket.emit("getChats", queryChats);
-    //     socket.emit("getMessages", queryMessages);
-    //   }
-    //   socket.emit("getUserInfo", {
-    //     query: {
-    //       id: user.id,
-    //       is_admin: user.is_admin,
-    //       read_only: user.read_only,
-    //       nickname: user.nickname,
-    //       email: user.email,
-    //     },
-    //   });
-    // };
-    setTimeout(baseConnect, 2000);
     socket.on("sendMessage", async (message) => {
       const newMsg = await wsService.createMessage(message);
       const chatUsers = await wsService.chatUsers(message.chat_id);
