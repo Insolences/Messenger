@@ -55,10 +55,9 @@ class AuthController {
   }
   async access(req, res) {
     const { token } = req.headers;
-
     try {
-      const { isAdmin } = jwt.verify(token, secret);
-      if (!isAdmin) {
+      const { is_admin } = jwt.verify(token, secret);
+      if (!is_admin) {
         return res.status(403).json({ message: "У вас нет доступа" });
       }
     } catch (e) {
@@ -66,6 +65,7 @@ class AuthController {
         message: "Пользователь не авторизован или закончилось действия токена",
       });
     }
+    res.json(200, "ok")
   }
 }
 
