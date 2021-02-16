@@ -41,21 +41,7 @@ const socketServer = (server) => {
         }))
       )
       .flat();
-    queryMessages.sort(function (a, b) {
-      if (a.id > b.id) {
-        return 1;
-      }
-      if (a.id < b.id) {
-        return -1;
-      }
-      // a должно быть равным b
-      return 0;
-    });
 
-    // console.log("user_id: ", id);
-    // console.log("connection: ", token);
-    // console.log("socket: ", socket.id);
-    // console.log("clients: ", Object.keys(io.engine.clients));
     socket.emit("getUserInfo", {
       query: {
         id: user.id,
@@ -72,6 +58,9 @@ const socketServer = (server) => {
       delete socket.nickname;
       const msg = await wsService.createMessage(socket);
     });
+    socket.on("createChat", (socket) => {
+      console.log("createChat")
+    })
   });
 
   io.on("disconnect", (socket) => {});

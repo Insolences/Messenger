@@ -31,3 +31,6 @@ exports.findMessages = (chat_id) => {
 exports.createMessage = (message) => {
   return db.message.create(message);
 };
+exports.createChat = ({creatorId, users=[]}) => {
+
+}
