@@ -8,8 +8,8 @@ exports.allUsers = () => {
     return allUsers;
 };
 
-exports.updateUsers = (id, is_admin, is_blocked, read_only) => {
-    const updUsers = db.user.update(
+exports.updateUsers = async (id, is_admin, is_blocked, read_only) => {
+    const updUsers = await db.user.update(
         { is_admin: is_admin, 
         is_blocked: is_blocked,
         read_only: read_only

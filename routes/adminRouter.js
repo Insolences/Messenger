@@ -4,9 +4,9 @@ const controller = require("../controllers/adminController");
 
 //localhost:5000/api/v1/
 
-router.get("/getUsers", controller.findUsers);
-router.patch("/updateUser", (...args) => controller.updateUsers(...args));
-router.get("/getAllChats", controller.getAllChats);
+router.get("/users", controller.findUsers);
+router.patch("/users", (...args) => controller.updateUsers(...args));
+router.get("/chats", controller.getAllChats);
 
 
 module.exports = router;

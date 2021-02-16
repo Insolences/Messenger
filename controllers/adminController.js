@@ -30,17 +30,13 @@ class AdminController {
         const { token } = req.headers;
         const { is_admin } = jwt.verify(token, secret);
         const objUsers = req.body;
-
         if (!is_admin) {
             return res.status(403).json({ message: "У вас нет доступа" });
-
         }else{
             try{
-                for(let i = 0; i<objUsers.length; i++){
-                    console.log(typeof(objUsers[i].id));
-                    await adminLayer.updateUsers(objUsers[i].id, objUsers[i].is_admin, objUsers[i].is_blocked, objUsers[i].read_only);
-                }
-
+                objUsers.sortUser.map((el)=>{
+                    adminLayer.updateUsers(el.id, el.is_admin, el.is_blocked, el.read_only)
+                })
                 return res.status(200).json({message: "Пользователь обновлен"});
             }catch(e) {
                 console.log(e);
