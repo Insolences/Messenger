@@ -55,12 +55,12 @@ class AdminController {
         }else{
             try{
                 let getAllChats = await adminLayer.getAllChats();
-                console.log(getAllChats);
+                console.log(getAllChats[0]);
                 if(getAllChats.length===0){
                     return res.status(400).json({message: 'Список чатов пустой'});
                 }
 
-                return res.json(getAllChats);
+                return res.json(getAllChats[0]);
                 }catch(e) {
                 console.log(e);
             }   
