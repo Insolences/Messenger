@@ -1,9 +1,8 @@
 require("dotenv").config({ path: "../.env" });
 const db = require("../models");
 const bcrypt = require("bcrypt");
-const saltRounds = +process.env.SALT_ROUNDS;
+const salt = +process.env.SALT_ROUNDS;
 const jwt = require("jsonwebtoken");
-const { secret } = require("../config/config");
 
 const adapterChat = (arr = [], chatId) => {
   return arr.reduce((acc, item) => {
@@ -14,9 +13,11 @@ const adapterChat = (arr = [], chatId) => {
   }, []);
 };
 
-exports.findUser = (id) => {
+const findUser = (id) => {
   return db.user.findOne({ where: { id } });
 };
+
+exports.findUser = findUser;
 exports.findChats = (id) => {
   return db.sequelize.query(
     `SELECT uc1.chat_id, users.nickname, chats.type, chats.title  FROM user_chats as uc1
@@ -53,7 +54,20 @@ exports.findAllUsers = async () => {
     return acc;
   }, []);
 };
+exports.updateUser = async ({ userId, password, email, nickname }) => {
+  console.log(password);
+  const hashedPassword = await bcrypt.hash(password, salt);
 
+  const user = await findUser(userId);
+  if (user) {
+    await user.update({
+      email,
+      nickname,
+      password: hashedPassword,
+    });
+  }
+  return user;
+};
 exports.createChat = async ({
   users = [],
   ownerId = null,

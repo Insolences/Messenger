@@ -2,10 +2,18 @@ const socketIo = require("socket.io");
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config/config");
 const wsService = require("../service/wsServiceLayer");
+const avatar = require("gravatar");
 const newMsgController = require("./websocketContollers/newMsgController");
 const message = require("../models/message");
 let senderUsers = [];
 let recieverUsers = [];
+const getAvatarURL = (email) => {
+  return avatar.url(email, {
+    s: 400,
+    r: "pg",
+    d: "mm",
+  });
+}
 
 const socketServer = (server) => {
   const io = socketIo(server, {
@@ -60,6 +68,7 @@ const socketServer = (server) => {
         title: chat.type === "public" ? chat.title : chat.nickname,
         message: "",
       }));
+
       const queryMessages = messages
         .map((array) =>
           array.map((message) => ({
@@ -70,7 +79,7 @@ const socketServer = (server) => {
             text: message.text,
           }))
         )
-        // .flat();
+        .flat();
       queryMessages.sort(function (a, b) {
         if (a.id > b.id) {
           return 1;
@@ -88,26 +97,30 @@ const socketServer = (server) => {
             read_only: user.read_only,
             nickname: user.nickname,
             email: user.email,
+            img: `https:${getAvatarURL(user.email)}`,
           },
         });
         socket.emit("getChats", queryChats);
         socket.emit("getMessages", queryMessages);
-      }, 2000);
+      }, 0);
+    } else {
+      setTimeout(() => {
+        socket.emit("getUserInfo", {
+          query: {
+            id: user.id,
+            is_admin: user.is_admin,
+            read_only: user.read_only,
+            nickname: user.nickname,
+            email: user.email,
+            img: `https:${getAvatarURL(user.email)}`,
+          },
+        });
+      }, 0);
     }
-    setTimeout(() => {
-      socket.emit("getUserInfo", {
-        query: {
-          id: user.id,
-          is_admin: user.is_admin,
-          read_only: user.read_only,
-          nickname: user.nickname,
-          email: user.email,
-        },
-      });
-    }, 2000);
 
     socket.on("sendMessage", async (message) => {
       const newMsg = await wsService.createMessage(message);
+
       const chatUsers = await wsService.chatUsers(message.chat_id);
       const usersId = chatUsers.reduce((acc, item) => {
         acc.push(item.user_id);
@@ -131,13 +144,38 @@ const socketServer = (server) => {
     socket.on("createChat", async ({ usersId, title, type, ownerId }) => {
       await wsService.createChat({ users, title, type, ownerId });
 
-      notificationAll({usersId, params:{}, event: "updateChats"})
+      notificationAll({ usersId, params: {}, event: "updateChats" });
     });
     socket.on("getAllUsers", async () => {
-      const users = await wsService.findAllUsers()
-      socket.emit("sendAllUsers", users)
-    })
-
+      const users = await wsService.findAllUsers();
+      socket.emit("sendAllUsers", users);
+    });
+    socket.on("updateProfile", async (data) => {
+      const { nickname, email, password, token } = data;
+      const { id } = jwt.verify(token, secret);
+      if (id) {
+        const user = await wsService.updateUser({
+          userId: id,
+          password,
+          nickname,
+          email,
+        });
+        notificationAll({
+          usersId: [id],
+          event: "getUserInfo",
+          params: {
+            query: {
+              id: user.id,
+              is_admin: user.is_admin,
+              read_only: user.read_only,
+              nickname: user.nickname,
+              email: user.email,
+              img: `https:${getAvatarURL(user.email)}`,
+            },
+          },
+        });
+      }
+    });
     socket.on("disconnect", () => {
       // console.log("disconnect", socket.id);
       // console.log(recieverUsers);
