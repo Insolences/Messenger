@@ -70,7 +70,7 @@ const socketServer = (server) => {
             text: message.text,
           }))
         )
-        // .flat();
+        .flat();
       queryMessages.sort(function (a, b) {
         if (a.id > b.id) {
           return 1;
@@ -92,19 +92,20 @@ const socketServer = (server) => {
         });
         socket.emit("getChats", queryChats);
         socket.emit("getMessages", queryMessages);
-      }, 2000);
+      }, 0);
+    } else {
+      setTimeout(() => {
+        socket.emit("getUserInfo", {
+          query: {
+            id: user.id,
+            is_admin: user.is_admin,
+            read_only: user.read_only,
+            nickname: user.nickname,
+            email: user.email,
+          },
+        });
+      }, 0);
     }
-    setTimeout(() => {
-      socket.emit("getUserInfo", {
-        query: {
-          id: user.id,
-          is_admin: user.is_admin,
-          read_only: user.read_only,
-          nickname: user.nickname,
-          email: user.email,
-        },
-      });
-    }, 2000);
 
     socket.on("sendMessage", async (message) => {
       const newMsg = await wsService.createMessage(message);
@@ -128,15 +129,43 @@ const socketServer = (server) => {
         params: sendMsg,
       });
     });
-    socket.on("createChat", async ({ usersId, title, type, ownerId }) => {
-      await wsService.createChat({ users, title, type, ownerId });
+    socket.on("createChat", async (usersId) => {
+      console.log(usersId);
 
-      notificationAll({usersId, params:{}, event: "updateChats"})
+      const chatId = await wsService.createChat(usersId);
+      usersId.map(async (item, index, arr) => {
+        const name = await wsService.findNickname(
+          index === 0 ? arr[index + 1] : arr[index - 1]
+        );
+        const queryChats = {
+          id: chatId,
+          title: name.nickname,
+          message: "",
+        };
+        if (recieverUsers[item]) {
+          recieverUsers[item].forEach((socketId) => {
+            io.to(socketId).emit("newChat", queryChats);
+          });
+        }
+      });
     });
-    socket.on("getAllUsers", async () => {
-      const users = await wsService.findAllUsers()
-      socket.emit("sendAllUsers", users)
-    })
+    socket.on("createGroup", async ({ usersId, title }) => {
+      const chatId = await wsService.createGroup(usersId, title);
+      const queryGroups = {
+        id: chatId,
+        title: title,
+        message: "",
+      };
+      notificationAll({
+        usersId,
+        event: "newChat",
+        params: queryGroups,
+      });
+    });
+    socket.on("getAllUsers", async (user_id) => {
+      const users = await wsService.findAllUsers(user_id);
+      socket.emit("sendAllUsers", users);
+    });
 
     socket.on("disconnect", () => {
       // console.log("disconnect", socket.id);

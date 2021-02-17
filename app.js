@@ -6,7 +6,7 @@ const cors = require("cors");
 const HOST = process.env.DB_HOST;
 const PORT = process.env.PORT;
 const authRouter = require("./routes/authRouter");
-const adminRouter = require("./routes/adminRouter")
+const adminRouter = require("./routes/adminRouter");
 const { socketServer } = require("./webSocket/index");
 
 app.use(express.urlencoded());
@@ -33,3 +33,13 @@ socketServer(server); // Подключение websocket
 // WHERE uc1.user_id = ${id}`
 //   )
 //   .then((chats) => console.log(JSON.stringify(chats)));
+let char = "YUG";
+let color =
+  "#" +
+  char.substr(0, 1).charCodeAt().toString(16) +
+  char.substr(1, 2).charCodeAt().toString(16) +
+  char.substr(2, 3).charCodeAt().toString(16);
+console.log(color);
+console.log(
+  ((parseInt(color, 16) ^ 0xffffff) | 0x1000000).toString(16).substring(1)
+);
