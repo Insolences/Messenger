@@ -23,11 +23,12 @@ exports.updateUsers = async (id, is_admin, is_blocked, read_only) => {
 
 exports.getAllChats = async() =>{
 
-  const allChats = db.sequelize.query(`SELECT DISTINCT chats.id, chats.title, users.nickname
-   from user_chats
-   join users on users.id = user_chats.user_id 
-   join chats on chats.id = user_chats.chat_id 
-   where chats.type = "public"`);
+  const allChats = db.sequelize.query(`SELECT chats.id, chats.title, users.nickname, users.id as id_user
+    from user_chats
+    join users on users.id = user_chats.user_id 
+    join chats on chats.id = user_chats.chat_id 
+    where chats.type = "public"`);
+  console.log(`select users.id from users`);
   return allChats;
 };
 
