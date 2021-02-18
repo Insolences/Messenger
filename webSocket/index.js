@@ -70,7 +70,7 @@ const socketServer = (server) => {
             text: message.text,
           }))
         )
-        // .flat();
+        .flat();
       queryMessages.sort(function (a, b) {
         if (a.id > b.id) {
           return 1;
@@ -92,7 +92,7 @@ const socketServer = (server) => {
         });
         socket.emit("getChats", queryChats);
         socket.emit("getMessages", queryMessages);
-      }, 2000);
+      }, 0);
     }
     setTimeout(() => {
       socket.emit("getUserInfo", {
@@ -104,7 +104,7 @@ const socketServer = (server) => {
           email: user.email,
         },
       });
-    }, 2000);
+    }, 0);
 
     socket.on("sendMessage", async (message) => {
       const newMsg = await wsService.createMessage(message);
