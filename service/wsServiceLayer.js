@@ -3,11 +3,9 @@ const db = require("../models");
 const bcrypt = require("bcrypt");
 const salt = +process.env.SALT_ROUNDS;
 const jwt = require("jsonwebtoken");
-<<<<<<< service/wsServiceLayer.js
 const { secret } = require("../config/config");
 const { Op } = require("sequelize");
-=======
->>>>>>> service/wsServiceLayer.js
+
 
 const adapterChat = (arr, chatId) => {
   return arr.reduce((acc, item) => {
@@ -69,8 +67,6 @@ exports.findAllUsers = async (user_id) => {
 exports.updateUser = async ({ userId, password, email, nickname }) => {
   console.log(password);
   const hashedPassword = await bcrypt.hash(password, salt);
-
-<<<<<<< service/wsServiceLayer.js
   const user = await findUser(userId);
   if (user) {
     await user.update({
@@ -97,9 +93,6 @@ exports.createGroup = async (usersId, title) => {
   await db.user_chat.bulkCreate(adapterChat(usersId, chat.id));
   return chat.id;
 };
-=======
-
->>>>>>> service/wsServiceLayer.js
  
 exports.findNickname = (id) => {
   return db.user.findOne({ where: { id }, attributes: ["nickname"] });
