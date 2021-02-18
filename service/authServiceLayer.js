@@ -13,6 +13,7 @@ exports.create = (login, password, email = "test@email.com") => {
   const hash = bcrypt.hashSync(password, saltRounds);
   const newUser = db.user.create({
     login,
+    nickname: login,
     password: hash,
     email,
   });
