@@ -84,9 +84,9 @@ class AdminController {
         }else{
             try{
 
-                let delUserChat = await adminLayer.deleteUsersOfChats(chat_id, user_id);
+                await adminLayer.deleteUsersOfChats(chat_id, user_id);
 
-                return res.json(delUserChat);
+                return res.status(200).json({ message: "Пользователь удален" });
                 }catch(e) {
                 console.log(e);
             }   
