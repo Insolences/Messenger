@@ -80,7 +80,18 @@ const socketServer = (server) => {
           }))
         )
         .flat();
-
+<<<<<<< webSocket/index.js
+      queryMessages.sort(function (a, b) {
+        if (a.id > b.id) {
+          return 1;
+        }
+        if (a.id < b.id) {
+          return -1;
+        }
+        return 0;
+      });
+=======
+>>>>>>> webSocket/index.js
       setTimeout(() => {
         socket.emit("getUserInfo", {
           query: {
@@ -104,7 +115,11 @@ const socketServer = (server) => {
             read_only: user.read_only,
             nickname: user.nickname,
             email: user.email,
+<<<<<<< webSocket/index.js
             img: `https:${getAvatarURL(user.email)}`,
+=======
+           
+>>>>>>> webSocket/index.js
           },
         });
       }, 0);
@@ -133,14 +148,39 @@ const socketServer = (server) => {
         params: sendMsg,
       });
     });
-    socket.on("createChat", async ({ usersId, title, type, ownerId }) => {
-      await wsService.createChat({ users, title, type, ownerId });
+    socket.on("createChat", async (usersId) => {
+      console.log(usersId);
 
-      notificationAll({ usersId, params: {}, event: "updateChats" });
+<<<<<<< webSocket/index.js
+      const chatId = await wsService.createChat(usersId);
+      usersId.map(async (item, index, arr) => {
+        const name = await wsService.findNickname(
+          index === 0 ? arr[index + 1] : arr[index - 1]
+        );
+        const queryChats = {
+          id: chatId,
+          title: name.nickname,
+          message: "",
+        };
+        if (recieverUsers[item]) {
+          recieverUsers[item].forEach((socketId) => {
+            io.to(socketId).emit("newChat", queryChats);
+          });
+        }
+      });
     });
-    socket.on("getAllUsers", async () => {
-      const users = await wsService.findAllUsers();
-      socket.emit("sendAllUsers", users);
+    socket.on("createGroup", async ({ usersId, title }) => {
+      const chatId = await wsService.createGroup(usersId, title);
+      const queryGroups = {
+        id: chatId,
+        title: title,
+        message: "",
+      };
+      notificationAll({
+        usersId,
+        event: "newChat",
+        params: queryGroups,
+      });
     });
     socket.on("updateProfile", async (data) => {
       const { nickname, email, password, token } = data;
@@ -168,6 +208,13 @@ const socketServer = (server) => {
         });
       }
     });
+    socket.on("getAllUsers", async (user_id) => {
+      const users = await wsService.findAllUsers(user_id);
+      socket.emit("sendAllUsers", users);
+    });
+
+=======
+>>>>>>> webSocket/index.js
     socket.on("disconnect", () => {
       // console.log("disconnect", socket.id);
       // console.log(recieverUsers);

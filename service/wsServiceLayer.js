@@ -3,13 +3,19 @@ const db = require("../models");
 const bcrypt = require("bcrypt");
 const salt = +process.env.SALT_ROUNDS;
 const jwt = require("jsonwebtoken");
+<<<<<<< service/wsServiceLayer.js
+const { secret } = require("../config/config");
+const { Op } = require("sequelize");
+=======
+>>>>>>> service/wsServiceLayer.js
 
-const adapterChat = (arr = [], chatId) => {
+const adapterChat = (arr, chatId) => {
   return arr.reduce((acc, item) => {
     acc.push({
       chat_id: chatId,
       user_id: item,
     });
+    return acc;
   }, []);
 };
 
@@ -44,8 +50,14 @@ exports.createMessage = (message) => {
 exports.chatUsers = (chat_id) => {
   return db.user_chat.findAll({ where: { chat_id } });
 };
-exports.findAllUsers = async () => {
-  const users = await db.user.findAll();
+exports.findAllUsers = async (user_id) => {
+  const users = await db.user.findAll({
+    where: {
+      id: {
+        [Op.ne]: user_id,
+      },
+    },
+  });
   return users.reduce((acc, item) => {
     acc.push({
       id: item.id,
@@ -58,6 +70,7 @@ exports.updateUser = async ({ userId, password, email, nickname }) => {
   console.log(password);
   const hashedPassword = await bcrypt.hash(password, salt);
 
+<<<<<<< service/wsServiceLayer.js
   const user = await findUser(userId);
   if (user) {
     await user.update({
@@ -68,16 +81,26 @@ exports.updateUser = async ({ userId, password, email, nickname }) => {
   }
   return user;
 };
-exports.createChat = async ({
-  users = [],
-  ownerId = null,
-  title = null,
-  type,
-}) => {
+
+exports.createChat = async (usersId) => {
   const chat = await db.chat.create({
-    type,
-    title,
-    ownerId,
+    type: "private",
   });
-  db.user_chat.bulkCreate(adapterChat(users, chat.id));
+  await db.user_chat.bulkCreate(adapterChat(usersId, chat.id));
+  return chat.id;
+};
+exports.createGroup = async (usersId, title) => {
+ const chat = await db.chat.create({
+    type: "public",
+    title,
+  });
+  await db.user_chat.bulkCreate(adapterChat(usersId, chat.id));
+  return chat.id;
+};
+=======
+
+>>>>>>> service/wsServiceLayer.js
+ 
+exports.findNickname = (id) => {
+  return db.user.findOne({ where: { id }, attributes: ["nickname"] });
 };
