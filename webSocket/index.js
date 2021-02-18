@@ -2,10 +2,18 @@ const socketIo = require("socket.io");
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config/config");
 const wsService = require("../service/wsServiceLayer");
+const avatar = require("gravatar");
 const newMsgController = require("./websocketContollers/newMsgController");
 const message = require("../models/message");
 let senderUsers = [];
 let recieverUsers = [];
+const getAvatarURL = (email) => {
+  return avatar.url(email, {
+    s: 400,
+    r: "pg",
+    d: "mm",
+  });
+}
 
 const socketServer = (server) => {
   const io = socketIo(server, {
@@ -60,6 +68,7 @@ const socketServer = (server) => {
         title: chat.type === "public" ? chat.title : chat.nickname,
         message: "",
       }));
+
       const queryMessages = messages
         .map((array) =>
           array.map((message) => ({
@@ -88,6 +97,7 @@ const socketServer = (server) => {
             read_only: user.read_only,
             nickname: user.nickname,
             email: user.email,
+            img: `https:${getAvatarURL(user.email)}`,
           },
         });
         socket.emit("getChats", queryChats);
@@ -108,6 +118,7 @@ const socketServer = (server) => {
 
     socket.on("sendMessage", async (message) => {
       const newMsg = await wsService.createMessage(message);
+
       const chatUsers = await wsService.chatUsers(message.chat_id);
       const usersId = chatUsers.reduce((acc, item) => {
         acc.push(item.user_id);
@@ -128,15 +139,68 @@ const socketServer = (server) => {
         params: sendMsg,
       });
     });
-    socket.on("createChat", async ({ usersId, title, type, ownerId }) => {
-      await wsService.createChat({ users, title, type, ownerId });
-
-      notificationAll({usersId, params:{}, event: "updateChats"})
+    socket.on("createChat", async (usersId) => {
+      console.log(usersId);
+      const chatId = await wsService.createChat(usersId);
+      usersId.map(async (item, index, arr) => {
+        const name = await wsService.findNickname(
+          index === 0 ? arr[index + 1] : arr[index - 1]
+        );
+        const queryChats = {
+          id: chatId,
+          title: name.nickname,
+          message: "",
+        };
+        if (recieverUsers[item]) {
+          recieverUsers[item].forEach((socketId) => {
+            io.to(socketId).emit("newChat", queryChats);
+          });
+        }
+      });
     });
-    socket.on("getAllUsers", async () => {
-      const users = await wsService.findAllUsers()
-      socket.emit("sendAllUsers", users)
-    })
+    socket.on("createGroup", async ({ usersId, title }) => {
+      const chatId = await wsService.createGroup(usersId, title);
+      const queryGroups = {
+        id: chatId,
+        title: title,
+        message: "",
+      };
+      notificationAll({
+        usersId,
+        event: "newChat",
+        params: queryGroups,
+      });
+    });
+    socket.on("updateProfile", async (data) => {
+      const { nickname, email, password, token } = data;
+      const { id } = jwt.verify(token, secret);
+      if (id) {
+        const user = await wsService.updateUser({
+          userId: id,
+          password,
+          nickname,
+          email,
+        });
+        notificationAll({
+          usersId: [id],
+          event: "getUserInfo",
+          params: {
+            query: {
+              id: user.id,
+              is_admin: user.is_admin,
+              read_only: user.read_only,
+              nickname: user.nickname,
+              email: user.email,
+              img: `https:${getAvatarURL(user.email)}`,
+            },
+          },
+        });
+      }
+    });
+    socket.on("getAllUsers", async (user_id) => {
+      const users = await wsService.findAllUsers(user_id);
+      socket.emit("sendAllUsers", users);
+    });
 
     socket.on("disconnect", () => {
       // console.log("disconnect", socket.id);

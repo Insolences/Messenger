@@ -6,7 +6,7 @@ const cors = require("cors");
 const HOST = process.env.DB_HOST;
 const PORT = process.env.PORT;
 const authRouter = require("./routes/authRouter");
-const adminRouter = require("./routes/adminRouter")
+const adminRouter = require("./routes/adminRouter");
 const { socketServer } = require("./webSocket/index");
 
 app.use(express.urlencoded());
