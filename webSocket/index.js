@@ -80,7 +80,6 @@ const socketServer = (server) => {
           }))
         )
         .flat();
-<<<<<<< webSocket/index.js
       queryMessages.sort(function (a, b) {
         if (a.id > b.id) {
           return 1;
@@ -90,8 +89,6 @@ const socketServer = (server) => {
         }
         return 0;
       });
-=======
->>>>>>> webSocket/index.js
       setTimeout(() => {
         socket.emit("getUserInfo", {
           query: {
@@ -115,11 +112,7 @@ const socketServer = (server) => {
             read_only: user.read_only,
             nickname: user.nickname,
             email: user.email,
-<<<<<<< webSocket/index.js
             img: `https:${getAvatarURL(user.email)}`,
-=======
-           
->>>>>>> webSocket/index.js
           },
         });
       }, 0);
@@ -150,8 +143,6 @@ const socketServer = (server) => {
     });
     socket.on("createChat", async (usersId) => {
       console.log(usersId);
-
-<<<<<<< webSocket/index.js
       const chatId = await wsService.createChat(usersId);
       usersId.map(async (item, index, arr) => {
         const name = await wsService.findNickname(
@@ -213,8 +204,6 @@ const socketServer = (server) => {
       socket.emit("sendAllUsers", users);
     });
 
-=======
->>>>>>> webSocket/index.js
     socket.on("disconnect", () => {
       // console.log("disconnect", socket.id);
       // console.log(recieverUsers);
