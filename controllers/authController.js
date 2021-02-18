@@ -30,7 +30,9 @@ class AuthController {
           return res.status(403).json({ message: `Введен неверный пароль` });
         }
       }
-
+      if (user.is_blocked) {
+        return res.status(403).json({ message: `Вас заблокировали` });
+      }
       const token = authServiceLayer.generateAccessToken(
         user.id,
         user.is_admin
@@ -65,7 +67,7 @@ class AuthController {
         message: "Пользователь не авторизован или закончилось действия токена",
       });
     }
-    res.json(200, "ok")
+    res.json(200, "ok");
   }
 }
 
