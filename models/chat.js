@@ -9,6 +9,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate({model}) {
     }
+    toJSON() {
+      return { ...this.get(), createdAt: undefined, updatedAt: undefined };
+    }
   }
   chat.init(
     {

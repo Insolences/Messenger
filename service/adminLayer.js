@@ -23,13 +23,33 @@ exports.updateUsers = async (id, is_admin, is_blocked, read_only) => {
 
 exports.getAllChats = async() =>{
 
-  const allChats = db.sequelize.query(`SELECT chats.id, chats.title, users.nickname, users.id as id_user
-    from user_chats
-    join users on users.id = user_chats.user_id 
-    join chats on chats.id = user_chats.chat_id 
-    where chats.type = "public"`);
-  console.log(`select users.id from users`);
-  return allChats;
+  const allChats = await db.chat.findAll({
+    where: {
+      type: "public"
+    }
+  });
+
+  const allUsersGroupChats = await db.sequelize.query(`select distinct users.id, users.nickname, user_chats.chat_id 
+  from users
+  Left join user_chats
+  on user_chats.user_id = users.id
+  where user_chats.chat_id in (select chats.id from chats
+  where chats.type = "public")`);
+
+
+
+
+  // const allChats = db.sequelize.query(`SELECT chats.id, chats.title, users.nickname, users.id as id_user
+  //   from user_chats
+  //   join users on users.id = user_chats.user_id 
+  //   join chats on chats.id = user_chats.chat_id 
+  //   where chats.type = "public"`);
+  // console.log(allChats);
+  // console.log('-----------------------------------------------------------------------------------------------------------------------');
+  // console.log(allUsersGroupChats[0]);
+
+  return [allChats, allUsersGroupChats];
+  // return [allChats, allUsersGroupChats[0]];
 };
 
 exports.findUser = (search) => {
