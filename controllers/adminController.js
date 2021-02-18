@@ -52,24 +52,23 @@ class AdminController {
         if (!is_admin) {
             return res.status(403).json({ message: "У вас нет доступа" });
 
-        }else{
-            try{
-                let getAllChats = await adminLayer.getAllChats();
-                const listChat = getAllChats[0].reduce((acc, item) => {
+        }
+        try{
+            let getAllChats = await adminLayer.getAllChats();
+            const listChat = getAllChats[0].reduce((acc, item) => {
 
-                    const resolt = getAllChats[1][0].filter((elem) => elem.chat_id === item.dataValues.id)
-                    acc.push({...item, users: resolt})
-                    return acc
-                }, [])
+                const resolt = getAllChats[1][0].filter((elem) => elem.chat_id === item.dataValues.id)
+                acc.push({...item, users: resolt})
+                return acc
+            }, [])
 
-                if(listChat.length===0){
-                    return res.status(400).json({message: 'Список чатов пустой'});
-                }
+            if(listChat.length===0){
+                return res.status(400).json({message: 'Список чатов пустой'});
+            }
 
-                return res.json(listChat);
-                }catch(e) {
-                console.log(e);
-            }   
+            return res.json(listChat);
+            }catch(e) {
+            console.log(e);
         };   
     };
 
@@ -98,7 +97,6 @@ class AdminController {
         };
 
     }
-
 
 }
 

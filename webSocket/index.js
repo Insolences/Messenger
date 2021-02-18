@@ -103,20 +103,18 @@ const socketServer = (server) => {
         socket.emit("getChats", queryChats);
         socket.emit("getMessages", queryMessages);
       }, 0);
-    } else {
-      setTimeout(() => {
-        socket.emit("getUserInfo", {
-          query: {
-            id: user.id,
-            is_admin: user.is_admin,
-            read_only: user.read_only,
-            nickname: user.nickname,
-            email: user.email,
-            img: `https:${getAvatarURL(user.email)}`,
-          },
-        });
-      }, 0);
     }
+    setTimeout(() => {
+      socket.emit("getUserInfo", {
+        query: {
+          id: user.id,
+          is_admin: user.is_admin,
+          read_only: user.read_only,
+          nickname: user.nickname,
+          email: user.email,
+        },
+      });
+    }, 0);
 
     socket.on("sendMessage", async (message) => {
       const newMsg = await wsService.createMessage(message);

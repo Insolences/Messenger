@@ -29,7 +29,7 @@ exports.getAllChats = async() =>{
     }
   });
 
-  const allUsersGroupChats = await db.sequelize.query(`select distinct users.id, users.nickname, user_chats.chat_id 
+  const allUsersGroupChats = await db.sequelize.query(`select distinct users.id, users.nickname, users.email, user_chats.chat_id 
   from users
   Left join user_chats
   on user_chats.user_id = users.id
