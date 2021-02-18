@@ -55,12 +55,18 @@ class AdminController {
         }else{
             try{
                 let getAllChats = await adminLayer.getAllChats();
-                console.log(getAllChats[0]);
-                if(getAllChats.length===0){
+                const listChat = getAllChats[0].reduce((acc, item) => {
+
+                    const resolt = getAllChats[1][0].filter((elem) => elem.chat_id === item.dataValues.id)
+                    acc.push({...item, users: resolt})
+                    return acc
+                }, [])
+
+                if(listChat.length===0){
                     return res.status(400).json({message: 'Список чатов пустой'});
                 }
 
-                return res.json(getAllChats[0]);
+                return res.json(listChat);
                 }catch(e) {
                 console.log(e);
             }   
@@ -78,9 +84,9 @@ class AdminController {
         }else{
             try{
 
-                let delUserChat = await adminLayer.deleteUsersOfChats(chat_id, user_id);
+                await adminLayer.deleteUsersOfChats(chat_id, user_id);
 
-                return res.json(delUserChat);
+                return res.status(200).json({ message: "Пользователь удален" });
                 }catch(e) {
                 console.log(e);
             }   
