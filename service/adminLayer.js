@@ -65,3 +65,20 @@ exports.deleteUsersOfChats = (chat_id, user_id) => {
   );
   return deleteUOC;
 };
+
+exports.countUsersOnChat = async (chat_id) => {
+  const countUOC = await db.sequelize.query(`SELECT COUNT(user_chats.user_id) as 'count_user'
+  from user_chats
+  where user_chats.chat_id = ${chat_id}`);
+
+  return countUOC;
+}
+
+exports.deleteChat = async (chat_id) => {
+  const deleteC = await db.chat.destroy({
+    where: {
+      id: chat_id
+    }
+  } );
+  return deleteC
+}
