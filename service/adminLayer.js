@@ -21,12 +21,15 @@ exports.updateUsers = async (id, is_admin, is_blocked, read_only) => {
     return updUsers;
 };
 
-exports.getAllChats = () =>{
-  const allChats = db.sequelize.query(`SELECT chats.id, chats.owner_id, chats.title, chats.type,user_chats.chat_id, user_chats.user_id
-  FROM chats
-  LEFT JOIN user_chats 
-  ON id = chat_id`);
-    return allChats;
+exports.getAllChats = async() =>{
+
+  const allChats = db.sequelize.query(`SELECT chats.id, chats.title, users.nickname, users.id as id_user
+    from user_chats
+    join users on users.id = user_chats.user_id 
+    join chats on chats.id = user_chats.chat_id 
+    where chats.type = "public"`);
+  console.log(`select users.id from users`);
+  return allChats;
 };
 
 exports.findUser = (search) => {

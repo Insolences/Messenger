@@ -1,10 +1,13 @@
 require("dotenv").config({ path: "../.env" });
 const db = require("../models");
 const bcrypt = require("bcrypt");
-const saltRounds = +process.env.SALT_ROUNDS;
+const salt = +process.env.SALT_ROUNDS;
 const jwt = require("jsonwebtoken");
+<<<<<<< service/wsServiceLayer.js
 const { secret } = require("../config/config");
 const { Op } = require("sequelize");
+=======
+>>>>>>> service/wsServiceLayer.js
 
 const adapterChat = (arr, chatId) => {
   return arr.reduce((acc, item) => {
@@ -16,9 +19,11 @@ const adapterChat = (arr, chatId) => {
   }, []);
 };
 
-exports.findUser = (id) => {
+const findUser = (id) => {
   return db.user.findOne({ where: { id } });
 };
+
+exports.findUser = findUser;
 exports.findChats = (id) => {
   return db.sequelize.query(
     `SELECT uc1.chat_id, users.nickname, chats.type, chats.title  FROM user_chats as uc1
@@ -61,6 +66,21 @@ exports.findAllUsers = async (user_id) => {
     return acc;
   }, []);
 };
+exports.updateUser = async ({ userId, password, email, nickname }) => {
+  console.log(password);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+<<<<<<< service/wsServiceLayer.js
+  const user = await findUser(userId);
+  if (user) {
+    await user.update({
+      email,
+      nickname,
+      password: hashedPassword,
+    });
+  }
+  return user;
+};
 
 exports.createChat = async (usersId) => {
   const chat = await db.chat.create({
@@ -70,14 +90,17 @@ exports.createChat = async (usersId) => {
   return chat.id;
 };
 exports.createGroup = async (usersId, title) => {
-  const chat = await db.chat.create({
+ const chat = await db.chat.create({
     type: "public",
     title,
   });
   await db.user_chat.bulkCreate(adapterChat(usersId, chat.id));
   return chat.id;
 };
+=======
 
+>>>>>>> service/wsServiceLayer.js
+ 
 exports.findNickname = (id) => {
   return db.user.findOne({ where: { id }, attributes: ["nickname"] });
 };
