@@ -5,6 +5,7 @@ module.exports = {
       chat_id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
+        // onDelete: 'CASCADE',
       },
       user_id: {
         type: Sequelize.INTEGER,

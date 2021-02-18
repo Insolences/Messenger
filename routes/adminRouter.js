@@ -7,7 +7,7 @@ const controller = require("../controllers/adminController");
 router.get("/users", controller.allUsers);
 router.patch("/users", (...args) => controller.updateUsers(...args));
 router.get("/chats", controller.getAllChats);
-router.patch("/chats", (...args) => controller.deleteUserOfChat(...args));
+router.delete("/chats", (...args) => controller.deleteUserOfChat(...args));
 
 
 module.exports = router;
