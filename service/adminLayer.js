@@ -36,20 +36,8 @@ exports.getAllChats = async() =>{
   where user_chats.chat_id in (select chats.id from chats
   where chats.type = "public")`);
 
-
-
-
-  // const allChats = db.sequelize.query(`SELECT chats.id, chats.title, users.nickname, users.id as id_user
-  //   from user_chats
-  //   join users on users.id = user_chats.user_id 
-  //   join chats on chats.id = user_chats.chat_id 
-  //   where chats.type = "public"`);
-  // console.log(allChats);
-  // console.log('-----------------------------------------------------------------------------------------------------------------------');
-  // console.log(allUsersGroupChats[0]);
-
   return [allChats, allUsersGroupChats];
-  // return [allChats, allUsersGroupChats[0]];
+
 };
 
 exports.findUser = (search) => {

@@ -55,18 +55,18 @@ class AdminController {
         }else{
             try{
                 let getAllChats = await adminLayer.getAllChats();
-                const addd = getAllChats[0].reduce((acc, item) => {
+                const listChat = getAllChats[0].reduce((acc, item) => {
 
                     const resolt = getAllChats[1][0].filter((elem) => elem.chat_id === item.dataValues.id)
                     acc.push({...item, users: resolt})
                     return acc
                 }, [])
 
-                if(getAllChats.length===0){
+                if(listChat.length===0){
                     return res.status(400).json({message: 'Список чатов пустой'});
                 }
 
-                return res.json(addd);
+                return res.json(listChat);
                 }catch(e) {
                 console.log(e);
             }   
