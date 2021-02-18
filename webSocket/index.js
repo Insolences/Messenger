@@ -13,7 +13,7 @@ const getAvatarURL = (email) => {
     r: "pg",
     d: "mm",
   });
-}
+};
 
 const socketServer = (server) => {
   const io = socketIo(server, {
@@ -55,6 +55,7 @@ const socketServer = (server) => {
       [user.id]: [...(recieverUsers[user.id] || []), socket.id],
     };
     const chats = await wsService.findChats(id);
+    console.log(JSON.stringify(chats));
 
     const messages = [];
 
@@ -66,7 +67,11 @@ const socketServer = (server) => {
       const queryChats = chats[0].map((chat) => ({
         id: chat.chat_id,
         title: chat.type === "public" ? chat.title : chat.nickname,
+        type: chat.type,
+        user_id: chat.type === "private" ? chat.id : null,
         message: "",
+        newChat: false,
+        count: 0,
       }));
 
       const queryMessages = messages
@@ -119,8 +124,11 @@ const socketServer = (server) => {
     }
 
     socket.on("sendMessage", async (message) => {
+      const user = await wsService.findUser(message.sender_id);
+      if (user.read_only || message.text.length > 500) {
+        return false;
+      }
       const newMsg = await wsService.createMessage(message);
-
       const chatUsers = await wsService.chatUsers(message.chat_id);
       const usersId = chatUsers.reduce((acc, item) => {
         acc.push(item.user_id);
@@ -151,7 +159,10 @@ const socketServer = (server) => {
         const queryChats = {
           id: chatId,
           title: name.nickname,
-          message: "",
+          user_id: index === 0 ? arr[index + 1] : arr[index - 1],
+          type: "private",
+          message: index === 0 ? "Создан новый чат" : "Вас добавили в чат",
+          newChat: true,
         };
         if (recieverUsers[item]) {
           recieverUsers[item].forEach((socketId) => {
@@ -165,7 +176,10 @@ const socketServer = (server) => {
       const queryGroups = {
         id: chatId,
         title: title,
-        message: "",
+        type: "public",
+        user_id: null,
+        message: "Создана новая группа",
+        newChat: true,
       };
       notificationAll({
         usersId,
@@ -207,6 +221,45 @@ const socketServer = (server) => {
     socket.on("disconnect", () => {
       // console.log("disconnect", socket.id);
       // console.log(recieverUsers);
+    });
+    socket.on("leaveGroup", async ({ chat_id, user_id }) => {
+      await wsService.leaveGroup(chat_id, user_id);
+      const chats = await wsService.findChats(user_id);
+      const queryChats = chats[0].map((chat) => ({
+        id: chat.chat_id,
+        title: chat.type === "public" ? chat.title : chat.nickname,
+        type: chat.type,
+        user_id: chat.type === "private" ? chat.id : null,
+        message: "",
+      }));
+      notificationAll({
+        usersId: [user_id],
+        event: "getChats",
+        params: queryChats,
+      });
+    });
+    socket.on("deleteChat", async ({ chat_id, usersId }) => {
+      const test = await wsService.deleteChat(chat_id, usersId);
+      if (!test) {
+        return false;
+      }
+      usersId.map(async (item, index, arr) => {
+        const chats = await wsService.findChats(item);
+        console.log(JSON.stringify(chats));
+
+        const queryChats = chats[0].map((chat) => ({
+          id: chat.chat_id,
+          title: chat.type === "public" ? chat.title : chat.nickname,
+          type: chat.type,
+          user_id: chat.type === "private" ? chat.id : null,
+          message: "",
+        }));
+        if (recieverUsers[item]) {
+          recieverUsers[item].forEach((socketId) => {
+            io.to(socketId).emit("getChats", queryChats);
+          });
+        }
+      });
     });
   });
 };
