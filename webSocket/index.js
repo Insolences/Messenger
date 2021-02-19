@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const { secret } = require("../config/config");
 const wsService = require("../service/wsServiceLayer");
 const avatar = require("gravatar");
+const AntiSpam = require("socket-io-anti-spam");
 let senderUsers = [];
 let recieverUsers = [];
 const getAvatarURL = (email) => {
@@ -21,6 +22,11 @@ const socketServer = (server) => {
       credentials: true,
     },
   });
+  const socketAntiSpam = new AntiSpam({
+    // banTime: 0.5,
+    // kickThreshold: 5,
+    io: io,
+  });
   const notificationAll = ({ usersId, event, params }) => {
     usersId.forEach((id) => {
       if (recieverUsers[id]) {
@@ -33,7 +39,7 @@ const socketServer = (server) => {
   io.on("connection", async (socket) => {
     const token = socket.handshake.query.token;
     if (!token) {
-      socket.disconnect();
+      io.disconnect();
     }
     const { id } = jwt.verify(token, secret);
     const user = await wsService.findUser(id);
@@ -212,7 +218,6 @@ const socketServer = (server) => {
       const users = await wsService.findAllUsers(user_id);
       socket.emit("sendAllUsers", users);
     });
-
     socket.on("disconnect", () => {
       // console.log("disconnect", socket.id);
       // console.log(recieverUsers);
@@ -254,6 +259,37 @@ const socketServer = (server) => {
           });
         }
       });
+    });
+    socketAntiSpam.event.on("spamscore", async (socket, data) => {
+      if (data.score === 5) {
+        const id =
+          senderUsers[senderUsers.findIndex((elem) => elem[socket.id])][
+            socket.id
+          ].id;
+        const user = await wsService.findUser(id);
+        io.to(socket.id).emit("getUserInfo", {
+          query: {
+            id: user.id,
+            is_admin: user.is_admin,
+            read_only: 1,
+            nickname: user.nickname,
+            email: user.email,
+            img: `https:${getAvatarURL(user.email)}`,
+          },
+        });
+        setTimeout(() => {
+          io.to(socket.id).emit("getUserInfo", {
+            query: {
+              id: user.id,
+              is_admin: user.is_admin,
+              read_only: user.read_only,
+              nickname: user.nickname,
+              email: user.email,
+              img: `https:${getAvatarURL(user.email)}`,
+            },
+          });
+        }, 10000);
+      }
     });
   });
 };
