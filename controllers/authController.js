@@ -45,7 +45,6 @@ class AuthController {
   }
   async verify(req, res) {
     const { token } = req.headers;
-
     try {
       const { id } = jwt.verify(token, secret);
       res.status(200).json({ id });
