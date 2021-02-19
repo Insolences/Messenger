@@ -3,8 +3,6 @@ const jwt = require("jsonwebtoken");
 const { secret } = require("../config/config");
 const wsService = require("../service/wsServiceLayer");
 const avatar = require("gravatar");
-const newMsgController = require("./websocketContollers/newMsgController");
-const message = require("../models/message");
 let senderUsers = [];
 let recieverUsers = [];
 const getAvatarURL = (email) => {
@@ -116,6 +114,7 @@ const socketServer = (server) => {
           read_only: user.read_only,
           nickname: user.nickname,
           email: user.email,
+          img: `https:${getAvatarURL(user.email)}`,
         },
       });
     }, 0);
@@ -147,7 +146,6 @@ const socketServer = (server) => {
       });
     });
     socket.on("createChat", async (usersId) => {
-      console.log(usersId);
       const chatId = await wsService.createChat(usersId);
       usersId.map(async (item, index, arr) => {
         const name = await wsService.findNickname(
@@ -242,7 +240,6 @@ const socketServer = (server) => {
       }
       usersId.map(async (item, index, arr) => {
         const chats = await wsService.findChats(item);
-        console.log(JSON.stringify(chats));
 
         const queryChats = chats[0].map((chat) => ({
           id: chat.chat_id,
