@@ -55,7 +55,6 @@ const socketServer = (server) => {
       [user.id]: [...(recieverUsers[user.id] || []), socket.id],
     };
     const chats = await wsService.findChats(id);
-    console.log(JSON.stringify(chats));
 
     const messages = [];
 
