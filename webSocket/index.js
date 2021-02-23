@@ -58,6 +58,8 @@ const socketServer = (server) => {
       ...recieverUsers,
       [user.id]: [...(recieverUsers[user.id] || []), socket.id],
     };
+
+    console.log("recieverUsers: ", recieverUsers);
     const chats = await wsService.findChats(id);
 
     const chatIds = chats.reduce((acc, item) => {
@@ -78,15 +80,14 @@ const socketServer = (server) => {
         count: 0,
       }));
 
-      const queryMessages = messages
-        .map((message) => ({
-          id: message.id,
-          chat_id: message.chat_id,
-          sender_id: message.sender_id,
-          nickname: message.user.nickname,
-          text: message.text,
-        }))
-        .flat();
+      const queryMessages = messages.map((message) => ({
+        id: message.id,
+        chat_id: message.chat_id,
+        sender_id: message.sender_id,
+        nickname: message.user.nickname,
+        text: message.text,
+      }));
+      // .flat();
       queryMessages.sort(function (a, b) {
         if (a.id > b.id) {
           return 1;
@@ -213,12 +214,27 @@ const socketServer = (server) => {
         });
       }
     });
+
+    socket.on("admin", (data) => {
+      console.log("DATA: ", data);
+      const bannedUsers = data.filter((user) => user.is_blocked);
+      console.log("bannedUsers: ", bannedUsers);
+
+      bannedUsers.map((user) => {
+        // console.log("recieverUsers: ", recieverUsers);
+        if (recieverUsers[user.id]) {
+          recieverUsers[user.id].forEach((socketId) => {
+            io.to(socketId).emit("bannedUser");
+          });
+        }
+      });
+    });
     socket.on("getAllUsers", async (user_id) => {
       const users = await wsService.findAllUsers(user_id);
       socket.emit("sendAllUsers", users);
     });
     socket.on("disconnect", () => {
-      // console.log("disconnect", socket.id);
+      console.log("disconnect", socket.id);
       // console.log(recieverUsers);
     });
     socket.on("leaveGroup", async ({ chat_id, user_id }) => {
