@@ -60,14 +60,15 @@ const socketServer = (server) => {
     };
     const chats = await wsService.findChats(id);
 
-    const messages = [];
+    const chatIds = chats.reduce((acc, item) => {
+      acc.push(item.chat_id);
+      return acc;
+    }, []);
 
-    for (const chat of chats[0]) {
-      messages.push(await wsService.findMessages(chat.chat_id));
-    }
+    const messages = await wsService.findMessages(chatIds);
 
-    if (chats[0].length !== 0 || messages.length !== 0) {
-      const queryChats = chats[0].map((chat) => ({
+    if (chats.length !== 0 || messages.length !== 0) {
+      const queryChats = chats.map((chat) => ({
         id: chat.chat_id,
         title: chat.type === "public" ? chat.title : chat.nickname,
         type: chat.type,
@@ -78,15 +79,13 @@ const socketServer = (server) => {
       }));
 
       const queryMessages = messages
-        .map((array) =>
-          array.map((message) => ({
-            id: message.id,
-            chat_id: message.chat_id,
-            sender_id: message.sender_id,
-            nickname: message.user.nickname,
-            text: message.text,
-          }))
-        )
+        .map((message) => ({
+          id: message.id,
+          chat_id: message.chat_id,
+          sender_id: message.sender_id,
+          nickname: message.user.nickname,
+          text: message.text,
+        }))
         .flat();
       queryMessages.sort(function (a, b) {
         if (a.id > b.id) {
