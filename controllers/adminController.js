@@ -23,29 +23,25 @@ class AdminController {
         console.log(e);
       }
     }
-  }
 
-  async updateUsers(req, res) {
-    const { token } = req.headers;
-    const { is_admin } = jwt.verify(token, secret);
-    const objUsers = req.body;
-    if (!is_admin) {
-      return res.status(403).json({ message: "У вас нет доступа" });
-    } else {
-      try {
-        objUsers.sortUser.map((el) => {
-          adminLayer.updateUsers(
-            el.id,
-            el.is_admin,
-            el.is_blocked,
-            el.read_only
-          );
-        });
+    async updateUsers(req, res) {
+        const { token } = req.headers;
+        const { is_admin } = jwt.verify(token, secret);
+        const objUsers = req.body;
+        if (!is_admin) {
+            return res.status(403).json({ message: "У вас нет доступа" });
+        }else{
+            try{
+                objUsers.map((el)=>{
+                    adminLayer.updateUsers(el.id, el.login, el.nickname,el.email,
+                         el.is_admin, el.is_blocked, el.read_only)
+                })
 
-        return res.status(200).json({ message: "Пользователь обновлен" });
-      } catch (e) {
-        console.log(e);
-      }
+                return res.status(200).json({message: "Пользователь обновлен"});
+            }catch(e) {
+                console.log(e);
+            }    
+        };   
     }
   }
 
