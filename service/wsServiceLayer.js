@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const salt = +process.env.SALT_ROUNDS;
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config/config");
+const Sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const reg = /^[a-zA-Z0-9]+$/;
 
@@ -24,16 +25,17 @@ const findUser = (id) => {
 exports.findUser = findUser;
 exports.findChats = (id) => {
   return db.sequelize.query(
-    `SELECT uc1.chat_id, users.nickname,users.id, chats.type, chats.title  FROM user_chats as uc1
+    `SELECT uc1.chat_id, users.nickname, users.id, chats.type, chats.title  FROM user_chats as uc1
 JOIN chats ON chats.id = uc1.chat_id
 LEFT OUTER JOIN user_chats as uc2 ON uc2.chat_id = uc1.chat_id AND uc2.user_id != ${id} AND chats.type = 'private'
 LEFT OUTER JOIN users ON users.id = uc2.user_id
-WHERE uc1.user_id = ${id}`
+WHERE uc1.user_id = ${id}`,
+    { type: Sequelize.QueryTypes.SELECT }
   );
 };
-exports.findMessages = (chat_id) => {
+exports.findMessages = (chatIds) => {
   return db.message.findAll({
-    where: { chat_id },
+    where: { chat_id: chatIds },
     include: [
       {
         model: db.user,
