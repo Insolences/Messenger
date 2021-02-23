@@ -34,8 +34,9 @@ class AdminController {
             return res.status(403).json({ message: "У вас нет доступа" });
         }else{
             try{
-                objUsers.sortUser.map((el)=>{
-                    adminLayer.updateUsers(el.id, el.is_admin, el.is_blocked, el.read_only)
+                objUsers.map((el)=>{
+                    adminLayer.updateUsers(el.id, el.login, el.nickname,el.email,
+                         el.is_admin, el.is_blocked, el.read_only)
                 })
 
                 return res.status(200).json({message: "Пользователь обновлен"});
@@ -44,6 +45,7 @@ class AdminController {
             }    
         };   
     }
+
 
     async getAllChats(req, res){
         const { token } = req.headers;
