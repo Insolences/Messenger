@@ -33,9 +33,12 @@ class AdminController {
       return res.status(403).json({ message: "У вас нет доступа" });
     } else {
       try {
-        objUsers.sortUser.map((el) => {
+        objUsers.map((el) => {
           adminLayer.updateUsers(
             el.id,
+            el.login,
+            el.nickname,
+            el.email,
             el.is_admin,
             el.is_blocked,
             el.read_only

@@ -8,18 +8,22 @@ exports.allUsers = () => {
     return allUsers;
 };
 
-exports.updateUsers = async (id, is_admin, is_blocked, read_only) => {
-    const updUsers = await db.user.update(
-        { is_admin: is_admin, 
-        is_blocked: is_blocked,
-        read_only: read_only
-        }, { where: {
-          id: id
-        }
+exports.updateUsers = async (id, login, nickname, email, is_admin, is_blocked, read_only) => {
+  const updUsers = await db.user.update(
+      { login: login,
+      nickname: nickname,
+      is_admin: is_admin,
+      email: email, 
+      is_blocked: is_blocked,
+      read_only: read_only
+      }, { where: {
+        id: id
       }
-    );
-    return updUsers;
+    }
+  );
+  return updUsers;
 };
+
 
 exports.getAllChats = async() =>{
 

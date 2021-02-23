@@ -2,6 +2,7 @@ const socketIo = require("socket.io");
 const jwt = require("jsonwebtoken");
 const { secret } = require("../config/config");
 const wsService = require("../service/wsServiceLayer");
+const wsController = require("../controllers/wsController");
 const avatar = require("gravatar");
 const AntiSpam = require("socket-io-anti-spam");
 let senderUsers = [];
@@ -124,32 +125,10 @@ const socketServer = (server) => {
       });
     }, 0);
 
-    socket.on("sendMessage", async (message) => {
-      const user = await wsService.findUser(message.sender_id);
-      if (user.read_only || message.text.length > 500) {
-        return false;
-      }
-      const newMsg = await wsService.createMessage(message);
-      const chatUsers = await wsService.chatUsers(message.chat_id);
-      const usersId = chatUsers.reduce((acc, item) => {
-        acc.push(item.user_id);
-        return acc;
-      }, []);
-
-      const sendMsg = {
-        id: newMsg.id,
-        chat_id: newMsg.chat_id,
-        sender_id: newMsg.sender_id,
-        nickname: message.nickname,
-        text: newMsg.text,
-      };
-
-      notificationAll({
-        usersId,
-        event: "newMessage",
-        params: sendMsg,
-      });
-    });
+    socket.on(
+      "sendMessage",
+      wsController.sendMessage({ socket, props: { notificationAll } })
+    );
     socket.on("createChat", async (usersId) => {
       const chatId = await wsService.createChat(usersId);
       usersId.map(async (item, index, arr) => {
@@ -217,10 +196,6 @@ const socketServer = (server) => {
       const users = await wsService.findAllUsers(user_id);
       socket.emit("sendAllUsers", users);
     });
-    socket.on("disconnect", () => {
-      // console.log("disconnect", socket.id);
-      // console.log(recieverUsers);
-    });
     socket.on("leaveGroup", async ({ chat_id, user_id }) => {
       await wsService.leaveGroup(chat_id, user_id);
       const chats = await wsService.findChats(user_id);
@@ -259,6 +234,7 @@ const socketServer = (server) => {
         }
       });
     });
+
     socketAntiSpam.event.on("spamscore", async (socket, data) => {
       if (data.score === 5) {
         const id =
@@ -290,6 +266,7 @@ const socketServer = (server) => {
         }, 10000);
       }
     });
+
   });
 };
 
