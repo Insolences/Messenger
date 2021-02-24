@@ -1,6 +1,6 @@
 const wsService = require("../../service/wsServiceLayer");
 
-const sendMessageController = ({ socket, props }) => () => async (message) => {
+module.exports = sendMessage = async (message, notificationAll) => {
   const user = await wsService.findUser(message.sender_id);
   if (user.read_only || message.text.length > 500) {
     return false;
@@ -20,11 +20,9 @@ const sendMessageController = ({ socket, props }) => () => async (message) => {
     text: newMsg.text,
   };
 
-  props.notificationAll({
+  notificationAll({
     usersId,
     event: "newMessage",
     params: sendMsg,
   });
 };
-
-module.exports = sendMessageController;
