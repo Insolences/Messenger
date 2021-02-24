@@ -80,14 +80,15 @@ const socketServer = (server) => {
         count: 0,
       }));
 
-      const queryMessages = messages.map((message) => ({
-        id: message.id,
-        chat_id: message.chat_id,
-        sender_id: message.sender_id,
-        nickname: message.user.nickname,
-        text: message.text,
-      }));
-      // .flat();
+      const queryMessages = messages
+        .map((message) => ({
+          id: message.id,
+          chat_id: message.chat_id,
+          sender_id: message.sender_id,
+          nickname: message.user.nickname,
+          text: message.text,
+        }))
+        .flat();
       queryMessages.sort(function (a, b) {
         if (a.id > b.id) {
           return 1;
@@ -221,7 +222,6 @@ const socketServer = (server) => {
       console.log("bannedUsers: ", bannedUsers);
 
       bannedUsers.map((user) => {
-        // console.log("recieverUsers: ", recieverUsers);
         if (recieverUsers[user.id]) {
           recieverUsers[user.id].forEach((socketId) => {
             io.to(socketId).emit("bannedUser");
@@ -235,7 +235,6 @@ const socketServer = (server) => {
     });
     socket.on("disconnect", () => {
       console.log("disconnect", socket.id);
-      // console.log(recieverUsers);
     });
     socket.on("leaveGroup", async ({ chat_id, user_id }) => {
       await wsService.leaveGroup(chat_id, user_id);

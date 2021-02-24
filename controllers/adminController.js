@@ -52,6 +52,25 @@ class AdminController {
     }
   }
 
+  async updateChats(req, res) {
+    const { token } = req.headers;
+    const { is_admin } = jwt.verify(token, secret);
+    const objChats = req.body;
+    if (!is_admin) {
+      return res.status(403).json({ message: "У вас нет доступа" });
+    } else {
+      try {
+        objChats.sortChats.map((el) => {
+          adminLayer.updateChats(el.dataValues.id, el.dataValues.title);
+        });
+
+        return res.status(200).json({ message: "Чат обновлен" });
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  }
+
   async getAllChats(req, res) {
     const { token } = req.headers;
     const { is_admin } = jwt.verify(token, secret);
