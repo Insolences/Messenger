@@ -29,6 +29,7 @@
     "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.2.5",
     "nodemon": "^2.0.7",
+    "prettier": "^2.2.1",
     "sequelize": "^6.5.0",
     "socket-anti-spam": "^2.0.0",
     "socket-io-anti-spam": "^2.5.0",

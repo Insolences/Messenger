@@ -1359,7 +1359,7 @@ moment-timezone@^0.5.31:
   dependencies:
     moment ">= 2.9.0"
 
-"moment@>= 2.9.0", moment@^2.26.0:
+"moment@>= 2.9.0", moment@^2.21.0, moment@^2.26.0:
   version "2.29.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.1.tgz#b2be769fa31940be9eeea6469c075e35006fa3d3"
   integrity sha512-kHmoybcPV8Sqy59DwNDY3Jefr64lK/by/da0ViFcuA4DH0vQg5Q6Ze5VimxkfQNSC+Mls/Kx53s7TjP1RhFEDQ==
@@ -1652,6 +1652,11 @@ prepend-http@^2.0.0:
   resolved "https://registry.yarnpkg.com/prepend-http/-/prepend-http-2.0.0.tgz#e92434bfa5ea8c19f41cdfd401d741a3c819d897"
   integrity sha1-6SQ0v6XqjBn0HN/UAddBo8gZ2Jc=
 
+prettier@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.2.1.tgz#795a1a78dd52f073da0cd42b21f9c91381923ff5"
+  integrity sha512-PqyhM2yCjg/oKkFPtTGUojv7gnZAoG80ttl45O6x2Ug/rMJw4wcc9k6aaf2hibP7BGVCCM33gZoGjyvt9mm16Q==
+
 process-nextick-args@~2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-2.0.1.tgz#7820d9b16120cc55ca9ae7792680ae7dba6d7fe2"
@@ -1937,6 +1942,20 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.3.tgz#a1410c2edd8f077b08b4e253c8eacfcaf057461c"
   integrity sha512-VUJ49FC8U1OxwZLxIbTTrDvLnf/6TDgxZcK8wxR8zs13xpx7xbG60ndBlhNrFi2EMuFRoeDoJO7wthSLq42EjA==
+
+socket-anti-spam@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/socket-anti-spam/-/socket-anti-spam-2.0.0.tgz#83dd77e36a1cd9e31ee3211e3a7bf690d8410752"
+  integrity sha512-glCDT8LrqwSY+tQJtvaz3YwTw1HL6bgWVvaQFumkClOcF+Jbg0NlAImqQabowNJcrCxr1dibKRoAvIfN98FKVw==
+  dependencies:
+    moment "^2.21.0"
+
+socket-io-anti-spam@^2.5.0:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/socket-io-anti-spam/-/socket-io-anti-spam-2.5.0.tgz#800848e44ee09fbf2386f3bbeb1b3ed5323c771b"
+  integrity sha512-vqsGgJuL6NH/sllORSXaQC+/81jk2fQYUt/x2U7jCVUHQQmgWANK2zVxmF3M8t0TOn7m31mvO/ugvR5idXrgfg==
+  dependencies:
+    moment "^2.21.0"
 
 socket.io-adapter@~2.1.0:
   version "2.1.0"
