@@ -1,0 +1,64 @@
+version: "3.7"
+
+services:
+  mysql-db:
+    image: mysql
+    container_name: mysql
+    env_file: .env
+    environment:
+      MYSQL_USER: $MYSQL_USER
+      MYSQL_PASSWORD: $MYSQL_PASSWORD
+      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_HOST: mysql-db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "8000:3306"
+    restart: unless-stopped
+    volumes:
+      - ./db/messenger.sql:/docker-entrypoint-initdb.d/messenger.sql
+    networks:
+      - app-network
+  server:
+    build: ./server
+    container_name: server
+    depends_on:
+      - mysql-db
+    env_file: .env
+    environment:
+      WAIT_HOSTS: mysql-db:3306
+      WAIT_HOSTS_TIMEOUT: 300
+      WAIT_SLEEP_INTERVAL: 30
+      WAIT_HOST_CONNECT_TIMEOUT: 30
+      DB_USERNAME: $MYSQL_USER
+      DB_PASSWORD: $MYSQL_PASSWORD
+      DB_NAME: $MYSQL_DATABASE
+      DB_HOST: mysql-db
+      SR_HOST: server
+      PORT: $SERVER_PORT
+      SALT_ROUNDS: $SALT_ROUNDS
+      SR_URL: $SERVER_URL
+    ports:
+      - 5000:5000
+    links:
+      - mysql-db
+    networks:
+      - app-network
+    command: sh -c "/wait && npm run createDB && npm run migrateDB && npm run seed && npm start"
+  client:
+    build: ./client
+    container_name: client
+    env_file: .env
+    environment:
+      REACT_APP_GOOGLE_ID: $REACT_APP_GOOGLE_ID
+      REACT_APP_FACEBOOK_ID: $REACT_APP_FACEBOOK_ID
+      NODE_PATH: src
+    ports:
+      - 3000:3000
+    links:
+      - server
+    networks:
+      - app-network
+    command: npm start
+networks:
+  app-network:
+    driver: bridge
