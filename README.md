@@ -1,9 +1,9 @@
-Messeger application ( React/NodeJS/MySQL/Docker)
+Messenger application ( React/NodeJS/MySQL/Docker)
 
 # Implemented:
 
 - Login/Registration ( + auth Google / Facebook )
-- Create private or group messeger
+- Create private or group message
 - Admin panel ( delete/update users or group chats | block / read_only / add admin root ) 
 - Everything interacts with MySQL DB
 
