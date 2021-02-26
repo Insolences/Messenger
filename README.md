@@ -14,5 +14,5 @@ Password: newuser
 
 # Getting Started 
 
-- npm docker-compose up
+- sudo docker-compose up
 
